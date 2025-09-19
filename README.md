@@ -1,62 +1,86 @@
-# Credit_Risk_Assessment_Model
-An attempt at the bluechip ft DSN Hackathon Credit Assessment Project to predict the risk of loan approvals based on certain features.
+# Credit Risk Assessment Model
 
-## Project Overview
-This project aims to build a machine learning model that assesses the credit risk of loan applicants. By leveraging a variety of data preprocessing techniques, feature engineering, and resampling methods, the model predicts whether a loan application is likely to be approved or not.
+This project provides a robust, modular machine learning pipeline for credit risk assessment using tabular data. It is designed for clarity, reproducibility, and ease of deployment. The pipeline supports advanced model ensembling, hyperparameter optimization with experiment tracking, and is fully testable for production use.
 
-## Features of the Project
-- **Data Preprocessing**: Handles missing values and encodes categorical variables.
-- **Feature Engineering**: Creates new features such as income ratios and polynomial features to enhance model performance.
-- **Resampling Techniques**: Implements various techniques like SMOTE, ADASYN, and SMOTETomek to address class imbalance in the dataset.
-- **Model Training**: Trains an XGBoost classifier and evaluates it using precision, recall, F1-score, and accuracy metrics.
-- **Model Persistence**: Saves and loads models using joblib for reproducibility.
+## Project Structure
 
-## Installation
-1. Clone the repository:
+```
+Credit_Risk_Assessment_Model/
+│
+├── credit-worthiness-prediction/   # Data files (Train.csv, Test.csv, etc.)
+├── models/                         # Saved models and evaluation results
+├── src/                            # Source code modules
+│   ├── data_prep.py                # Data loading, cleaning, feature engineering
+│   ├── pipeline.py                 # Preprocessing and modeling pipelines
+│   ├── models.py                   # Model definitions (sklearn, CatBoost, PyTorch, ensemble)
+│   ├── train.py                    # Training logic, ensemble, Optuna + MLflow
+│   ├── evaluate.py                 # Model evaluation and metrics
+│   ├── utils.py                    # Utility functions (save/load, seed, etc.)
+│   └── main.py                     # Pipeline entry point
+├── tests/                          # Unit tests for all modules
+│   └── ...                         # test_data_prep.py, test_pipeline.py, etc.
+└── README.md                       # Project documentation
+```
+
+
+## Features
+- **Modular codebase**: Each stage (data preparation, modeling, training, evaluation) is separated for maintainability and clarity.
+- **Model ensembling**: Combine predictions from multiple models (e.g., Logistic Regression, Random Forest, CatBoost) for improved accuracy and robustness.
+- **Hyperparameter optimization & experiment tracking**: Automated CatBoost tuning with Optuna, with all experiments and results logged via MLflow for full reproducibility.
+- **Reproducibility**: Deterministic results via random seed setting, requirements export, and comprehensive unit tests.
+- **Easy deployment**: Trained models are exported with joblib and ready for integration into APIs or batch scoring workflows.
+
+## Setup
+
+1. **Clone the repository**
+2. **Create and activate a virtual environment**
    ```bash
-   git clone https://github.com/abrokinla/Credit_Risk_Assessment_Model.git
+   python -m venv env
+   # On Windows:
+   env\Scripts\activate
+   # On macOS/Linux:
+   source env/bin/activate
    ```
-2. Navigate to the project directory:
+3. **Install dependencies**
    ```bash
-   cd Credit_Risk_Assessment_Model
+   pip install numpy pandas scikit-learn xgboost catboost optuna mlflow joblib pytest
+   # Add torch torchvision if using PyTorch models
    ```
-3. Install required dependencies:
+4. **Export requirements**
    ```bash
-   pip install -r requirements.txt
+   pip freeze > requirements.txt
    ```
 
 ## Usage
-1. Prepare the data:
-   - Confirm that the training dataset in the `credit-worthiness-prediction/` directory.
-   - Update the file paths in the script as necessary.
-2. Run the `Credit_Risk_Assessment_araoye.ipynb` to train and evaluate the model:
-   
-3. Save the trained model:
-   - Trained models are saved in the models directory upon training completion
-4. Use the saved model to make predictions on new data:
-   - You can load and use the saved model to predict on the test data provided
 
-## Project Structure
-- `credit-worthiness-prediction/`: Contains the dataset files.
-- `models/`: Stores the trained models.
-- `scripts/`: Includes scripts for preprocessing, training, and prediction.
-- `requirements.txt`: Lists all the dependencies required for the project.
+1. **Prepare your data**
+   - Place `Train.csv` and `Test.csv` in the `credit-worthiness-prediction/` folder.
+2. **Run the pipeline**
+   ```bash
+   python -m src.main
+   ```
+   - This will train and evaluate both an ensemble and a CatBoost model with Optuna tuning.
+   - Models and evaluation results are saved in the `models/` folder.
+3. **Run tests**
+   ```bash
+   pytest tests/
+   ```
 
-## Key Dependencies
-- Python 3.8+
-- Pandas
-- NumPy
-- Scikit-learn
-- XGBoost
-- Imbalanced-learn
+## Experiment Tracking
+- CatBoost hyperparameter optimization is tracked with MLflow.
+- To view experiments, run:
+  ```bash
+  mlflow ui
+  ```
+  and open the provided URL in your browser.
 
-## Contributions
-Contributions are welcome! If you have suggestions or improvements, feel free to create a pull request or open an issue.
+## Customization
+- To use different models or features, edit `src/main.py` and `src/train.py`.
+- To add new data sources (e.g., a database), update `src/data_prep.py`.
+
+## Requirements
+See `requirements.txt` for all dependencies.
 
 ## License
-This project is licensed under the MIT License. See the LICENSE file for details.
-
-## Acknowledgments
-- Bluechip FT DSN Hackathon organizers for providing the dataset and challenge.
-- Open-source libraries and contributors for tools used in this project.
+MIT License
 
