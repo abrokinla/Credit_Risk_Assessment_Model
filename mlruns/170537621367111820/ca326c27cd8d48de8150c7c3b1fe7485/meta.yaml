@@ -1,0 +1,14 @@
+artifact_uri: file:///C:/Users/HP/Documents/Github/Credit_Risk_Assessment_Model/mlruns/170537621367111820/ca326c27cd8d48de8150c7c3b1fe7485/artifacts
+end_time: 1758599131341
+entry_point_name: ''
+experiment_id: '170537621367111820'
+lifecycle_stage: active
+run_id: ca326c27cd8d48de8150c7c3b1fe7485
+run_name: able-slug-825
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1758599127381
+status: 3
+tags: []
+user_id: HP

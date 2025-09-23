@@ -1,0 +1,14 @@
+artifact_uri: file:///C:/Users/HP/Documents/Github/Credit_Risk_Assessment_Model/mlruns/170537621367111820/098f5d6b3b6d4b0fac4987226eb933c8/artifacts
+end_time: 1758600074521
+entry_point_name: ''
+experiment_id: '170537621367111820'
+lifecycle_stage: active
+run_id: 098f5d6b3b6d4b0fac4987226eb933c8
+run_name: rare-bass-30
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1758600069920
+status: 3
+tags: []
+user_id: HP

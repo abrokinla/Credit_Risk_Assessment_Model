@@ -1,0 +1,6 @@
+artifact_location: file:///C:/Users/HP/Documents/Github/Credit_Risk_Assessment_Model/mlruns/170537621367111820
+creation_time: 1758557150339
+experiment_id: '170537621367111820'
+last_update_time: 1758557150339
+lifecycle_stage: active
+name: catboost_optuna

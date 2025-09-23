@@ -1,0 +1,14 @@
+artifact_uri: file:///C:/Users/HP/Documents/Github/Credit_Risk_Assessment_Model/mlruns/170537621367111820/6ca86a35ce104b2e83bcfdfc89f201eb/artifacts
+end_time: 1758557582566
+entry_point_name: ''
+experiment_id: '170537621367111820'
+lifecycle_stage: active
+run_id: 6ca86a35ce104b2e83bcfdfc89f201eb
+run_name: redolent-penguin-284
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1758557579161
+status: 3
+tags: []
+user_id: HP

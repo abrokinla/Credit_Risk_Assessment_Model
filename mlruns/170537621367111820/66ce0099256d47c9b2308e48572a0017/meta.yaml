@@ -1,0 +1,14 @@
+artifact_uri: file:///C:/Users/HP/Documents/Github/Credit_Risk_Assessment_Model/mlruns/170537621367111820/66ce0099256d47c9b2308e48572a0017/artifacts
+end_time: 1758600228210
+entry_point_name: ''
+experiment_id: '170537621367111820'
+lifecycle_stage: active
+run_id: 66ce0099256d47c9b2308e48572a0017
+run_name: catboost_optuna_experiment
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1758600047413
+status: 3
+tags: []
+user_id: HP

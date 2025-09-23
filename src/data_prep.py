@@ -2,14 +2,24 @@
 data_prep.py
 Module for data loading, cleaning, and feature engineering.
 """
-def load_data(train_path, test_path):
 import pandas as pd
 import numpy as np
-
 def load_data(train_path, test_path):
-    """Load train and test CSV files."""
-    train_df = pd.read_csv(train_path)
-    test_df = pd.read_csv(test_path)
+     pass
+
+def load_data(train_path=None, test_path=None, from_db=False):
+    """
+    Load train and test data from CSV or database.
+    If from_db is True, fetches from the database using load_data_from_db.
+    """
+    if from_db:
+        from .db import load_data_from_db
+        # Fetch train and test data based on loan_status
+        train_df = load_data_from_db(where_clause="loan_status IS NOT NULL")
+        test_df = load_data_from_db(where_clause="loan_status IS NULL")
+    else:
+        train_df = pd.read_csv(train_path)
+        test_df = pd.read_csv(test_path)
     return train_df, test_df
 
 def col_to_lower_case(df):
@@ -28,13 +38,13 @@ def preprocess_dependents(df):
 
 def feature_eng(df):
     """Feature engineering as in the notebook."""
-    df['total_income'] = df['applicantincome'] + df['coapplicantincome']
-    df['loan_repayment_rate'] = df['loanamount'] / df['loan_amount_term']
-    df['loan_amount_ratio'] = df['loanamount'] / df['applicantincome']
-    df['loan_to_income_ratio'] = df['loanamount'] / df['total_income']
+    df['total_income'] = df['applicant_income'] + df['coapplicant_income']
+    df['loan_repayment_rate'] = df['loan_amount'] / df['loan_amount_term']
+    df['loan_amount_ratio'] = df['loan_amount'] / df['applicant_income']
+    df['loan_to_income_ratio'] = df['loan_amount'] / df['total_income']
     df['loan_repayment_income_ratio'] = df['loan_repayment_rate'] / df['total_income']
-    df['loan_repayment_applicatnt_income_ratio'] = df['loan_repayment_rate'] / df['applicantincome']
-    df['loan_income_thru_term'] = df['applicantincome'] * df['loan_amount_term']
+    df['loan_repayment_applicant_income_ratio'] = df['loan_repayment_rate'] / df['applicant_income']
+    df['loan_income_thru_term'] = df['applicant_income'] * df['loan_amount_term']
     df['loan_term_income_ratio'] = df['loan_amount_term'] / df['total_income']
     return df
 
@@ -44,6 +54,7 @@ def combine_and_preprocess(train_df, test_df):
     test_df['source'] = 'test'
     combined_df = pd.concat([train_df, test_df], ignore_index=True)
     combined_df = col_to_lower_case(combined_df)
+    print("[DEBUG] Combined columns after lowercasing:", combined_df.columns.tolist())
     combined_df = preprocess_dependents(combined_df)
     combined_df = feature_eng(combined_df)
     return combined_df

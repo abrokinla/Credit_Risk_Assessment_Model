@@ -1,0 +1,14 @@
+artifact_uri: file:///C:/Users/HP/Documents/Github/Credit_Risk_Assessment_Model/mlruns/170537621367111820/923f48420806475fa634e88e11345bef/artifacts
+end_time: 1758557513452
+entry_point_name: ''
+experiment_id: '170537621367111820'
+lifecycle_stage: active
+run_id: 923f48420806475fa634e88e11345bef
+run_name: intelligent-eel-228
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1758557508727
+status: 3
+tags: []
+user_id: HP

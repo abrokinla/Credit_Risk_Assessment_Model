@@ -1,0 +1,22 @@
+artifact_path: file:///C:/Users/HP/Documents/Github/Credit_Risk_Assessment_Model/mlruns/170537621367111820/models/m-a4100c3b5b244df7b0485e3427cbb076/artifacts
+flavors:
+  catboost:
+    catboost_version: 1.2.8
+    code: null
+    data: model.cb
+    model_type: CatBoostClassifier
+    save_format: cbm
+  python_function:
+    data: model.cb
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.catboost
+    python_version: 3.13.7
+mlflow_version: 3.4.0
+model_id: m-a4100c3b5b244df7b0485e3427cbb076
+model_size_bytes: 4057704
+model_uuid: m-a4100c3b5b244df7b0485e3427cbb076
+prompts: null
+run_id: 6d8787ab9e0a4b0c8820c5e696c23966
+utc_time_created: '2025-09-23 04:12:47.194640'

@@ -1,0 +1,14 @@
+artifact_uri: file:///C:/Users/HP/Documents/Github/Credit_Risk_Assessment_Model/mlruns/170537621367111820/435b39c7abbd489ea644a8618bddd7ee/artifacts
+end_time: 1758598984869
+entry_point_name: ''
+experiment_id: '170537621367111820'
+lifecycle_stage: active
+run_id: 435b39c7abbd489ea644a8618bddd7ee
+run_name: traveling-calf-604
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1758598976682
+status: 3
+tags: []
+user_id: HP

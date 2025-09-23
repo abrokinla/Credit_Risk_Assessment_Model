@@ -1,47 +1,87 @@
-"""
-main.py
-Entry point for running the full pipeline.
-"""
-
-from .train import train_model
-from .evaluate import evaluate_classification_model
-from .utils import save_model, save_results, set_seed
-import os
-
-
 def main():
+    import os
+    import numpy as np
+    from sklearn.model_selection import train_test_split
+    from src.utils import set_seed, save_model, save_results
+    from src.evaluate import evaluate_classification_model
+    from src.data_prep import load_data, combine_and_preprocess
+    from src.train import train_model
+
     set_seed(42)
-    train_path = os.path.join("..", "credit-worthiness-prediction", "Train.csv")
-    test_path = os.path.join("..", "credit-worthiness-prediction", "Test.csv")
+
+    # Load and preprocess data
+    train_df, test_df = load_data(from_db=True)
+    combined_df = combine_and_preprocess(train_df, test_df)
+    train_df_preprocessed = combined_df[combined_df['source'] == 'train']
+    test_df_preprocessed = combined_df[combined_df['source'] == 'test']
+
     numeric_features = [
-        "applicantincome", "coapplicantincome", "loanamount", "loan_amount_term", "total_income",
+        "applicant_income", "coapplicant_income", "loan_amount", "loan_amount_term", "total_income",
         "loan_repayment_rate", "loan_amount_ratio", "loan_to_income_ratio", "loan_repayment_income_ratio",
-        "loan_repayment_applicatnt_income_ratio", "loan_income_thru_term", "loan_term_income_ratio"
+        "loan_repayment_applicant_income_ratio", "loan_income_thru_term", "loan_term_income_ratio"
     ]
+    target_col = "loan_status"
 
-    # Example 1: Ensemble of Logistic Regression, Random Forest, and CatBoost
-    ensemble_models = ["logistic_regression", "random_forest", "catboost"]
-    pipeline_ensemble = train_model(train_path, test_path, ensemble_models, numeric_features, target_col="loan_status")
-    import pandas as pd
-    train_df = pd.read_csv(train_path)
-    X = train_df[numeric_features]
-    y = train_df["loan_status"]
-    results_ensemble = evaluate_classification_model(pipeline_ensemble, X, y)
-    print("\nEnsemble Evaluation Results:")
-    for k, v in results_ensemble.items():
-        print(f"{k}:\n{v}\n")
-    save_model(pipeline_ensemble, os.path.join("..", "models", "credit_risk_ensemble.joblib"))
-    save_results(results_ensemble, os.path.join("..", "models", "ensemble_evaluation_results.csv"))
+    X = train_df_preprocessed[numeric_features]
+    y = np.where(train_df_preprocessed[target_col] == 1, 1, 0)
 
-    # Example 2: CatBoost with Optuna and MLflow experiment tracking
+    # Run CatBoost Optuna 
     print("\nRunning CatBoost Optuna experiment (with MLflow logging)...")
-    pipeline_catboost_optuna = train_model(train_path, test_path, "catboost_optuna", numeric_features, target_col="loan_status", n_trials=10)
+    pipeline_catboost_optuna = train_model(
+        X=X,
+        test_df=test_df_preprocessed,
+        model_name="catboost_optuna",
+        numeric_features=numeric_features,
+        y=y,
+        n_trials=10
+    )
+
+    # fit model before evaluation
+    pipeline_catboost_optuna.fit(X, y)
+
     results_catboost_optuna = evaluate_classification_model(pipeline_catboost_optuna, X, y)
     print("\nCatBoost Optuna Evaluation Results:")
     for k, v in results_catboost_optuna.items():
         print(f"{k}:\n{v}\n")
-    save_model(pipeline_catboost_optuna, os.path.join("..", "models", "credit_risk_catboost_optuna.joblib"))
-    save_results(results_catboost_optuna, os.path.join("..", "models", "catboost_optuna_evaluation_results.csv"))
+
+    save_model(
+        pipeline_catboost_optuna,
+        os.path.join("..", "Credit_Risk_Assessment_Model/models", "credit_risk_catboost_optuna.joblib")
+    )
+    save_results(
+        results_catboost_optuna,
+        os.path.join("..", "Credit_Risk_Assessment_Model/models", "catboost_optuna_evaluation_results.csv")
+    )
+
+    # Ensemble with optimized CatBoost
+    print("\nBuilding Ensemble with Optimized CatBoost...")
+
+    ensemble_models = ["logistic_regression", "random_forest", "catboost_optuna"]
+    pipeline_ensemble = train_model(
+        X=X,
+        test_df=test_df_preprocessed,
+        model_name=ensemble_models,
+        numeric_features=numeric_features,
+        y=y,
+        n_trials=10 
+    )
+
+    pipeline_ensemble.fit(X, y)
+
+    results_ensemble = evaluate_classification_model(pipeline_ensemble, X, y)
+    print("\nEnsemble Evaluation Results:")
+    for k, v in results_ensemble.items():
+        print(f"{k}:\n{v}\n")
+
+    save_model(
+        pipeline_ensemble,
+        os.path.join("..", "Credit_Risk_Assessment_Model/models", "credit_risk_ensemble.joblib")
+    )
+    save_results(
+        results_ensemble,
+        os.path.join("..", "Credit_Risk_Assessment_Model/models", "ensemble_evaluation_results.csv")
+    )
+
 
 if __name__ == "__main__":
     main()

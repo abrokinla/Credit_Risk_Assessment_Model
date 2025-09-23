@@ -8,8 +8,7 @@ from sklearn.ensemble import RandomForestClassifier
 from xgboost import XGBClassifier
 from catboost import CatBoostClassifier
 
-# Optional: PyTorch model for advanced use
-# Optional: PyTorch model for advanced use
+# PyTorch model for advanced use
 try:
     import torch
     import torch.nn as nn
@@ -31,20 +30,36 @@ except ImportError:
 
 # Ensemble model for averaging predictions
 import numpy as np
-class EnsembleAverager:
+from sklearn.base import BaseEstimator, ClassifierMixin
+
+class EnsembleAverager(BaseEstimator, ClassifierMixin):
     """
     Ensemble model that averages the predicted probabilities of multiple fitted models.
     """
-    def __init__(self, models):
+    def __init__(self, models=None):
         self.models = models
+        self._is_fitted = False
+
+    def fit(self, X, y):
+        """
+        No fitting required for this meta-estimator as it uses pre-fitted models.
+        """
+        if self.models is None:
+            raise ValueError("Models list cannot be None")
+        self._is_fitted = True
+        return self
 
     def predict_proba(self, X):
+        if not self._is_fitted:
+            raise ValueError("Estimator not fitted, call 'fit' before making predictions")
         probas = [m.predict_proba(X)[:, 1] for m in self.models]
         avg_proba = np.mean(probas, axis=0)
         # Return shape (n_samples, 2) for sklearn compatibility
         return np.vstack([1 - avg_proba, avg_proba]).T
 
     def predict(self, X):
+        if not self._is_fitted:
+            raise ValueError("Estimator not fitted, call 'fit' before making predictions")
         avg_proba = self.predict_proba(X)[:, 1]
         return (avg_proba >= 0.5).astype(int)
 
@@ -66,4 +81,5 @@ def get_model(model_name, **kwargs):
         dropout = kwargs.get('dropout', 0.2)
         return SimpleMLP(input_dim, hidden_dim, dropout)
     else:
-        raise ValueError(f"Unknown model: {model_name}")
+        raise ValueError(f"Unknown model name: {model_name}")
+

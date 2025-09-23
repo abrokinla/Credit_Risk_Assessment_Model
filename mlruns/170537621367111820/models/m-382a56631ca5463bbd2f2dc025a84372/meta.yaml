@@ -1,0 +1,10 @@
+artifact_location: file:///C:/Users/HP/Documents/Github/Credit_Risk_Assessment_Model/mlruns/170537621367111820/models/m-382a56631ca5463bbd2f2dc025a84372/artifacts
+creation_timestamp: 1758599159722
+experiment_id: '170537621367111820'
+last_updated_timestamp: 1758599217117
+model_id: m-382a56631ca5463bbd2f2dc025a84372
+model_type: null
+name: catboost_model
+source_run_id: c37642dcb84c42f2bf2b005914bc5af6
+status: 2
+status_message: null

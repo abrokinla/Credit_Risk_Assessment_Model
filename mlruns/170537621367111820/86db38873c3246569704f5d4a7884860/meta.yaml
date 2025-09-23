@@ -1,0 +1,14 @@
+artifact_uri: file:///C:/Users/HP/Documents/Github/Credit_Risk_Assessment_Model/mlruns/170537621367111820/86db38873c3246569704f5d4a7884860/artifacts
+end_time: 1758599110458
+entry_point_name: ''
+experiment_id: '170537621367111820'
+lifecycle_stage: active
+run_id: 86db38873c3246569704f5d4a7884860
+run_name: upset-doe-733
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1758599087460
+status: 3
+tags: []
+user_id: HP
