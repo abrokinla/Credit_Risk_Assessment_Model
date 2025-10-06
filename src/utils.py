@@ -10,6 +10,7 @@ import os
 
 def save_model(model, path):
 	"""Save a model to disk using joblib."""
+	os.makedirs(os.path.dirname(path), exist_ok=True)
 	joblib.dump(model, path)
 
 def load_model(path):

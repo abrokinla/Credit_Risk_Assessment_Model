@@ -2,7 +2,7 @@
 pipeline.py
 Defines data processing and modeling pipelines.
 """
-from src.data_prep import load_data, combine_and_preprocess
+from data_prep import load_data, combine_and_preprocess
 from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler

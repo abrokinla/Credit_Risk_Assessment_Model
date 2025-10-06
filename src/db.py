@@ -13,7 +13,7 @@ def insert_dataframe_to_db(df, table_name="credit_requests"):
 
 if __name__ == "__main__":
     # Load Train.csv
-    train_df = pd.read_csv(os.path.abspath("../Credit_Risk_Assessment_Model/credit-worthiness-prediction/Train.csv"))
+    train_df = pd.read_csv(os.path.abspath("../credit-worthiness-prediction/Train.csv"))
     # Rename columns to match DB schema if needed
     train_df = train_df.rename(columns={
         "ApplicantIncome": "applicant_income",

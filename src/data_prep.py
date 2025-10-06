@@ -13,7 +13,7 @@ def load_data(train_path=None, test_path=None, from_db=False):
     If from_db is True, fetches from the database using load_data_from_db.
     """
     if from_db:
-        from .db import load_data_from_db
+        from db import load_data_from_db
         # Fetch train and test data based on loan_status
         train_df = load_data_from_db(where_clause="loan_status IS NOT NULL")
         test_df = load_data_from_db(where_clause="loan_status IS NULL")
@@ -38,6 +38,22 @@ def preprocess_dependents(df):
 
 def feature_eng(df):
     """Feature engineering as in the notebook."""
+    # First, standardize column names (convert non-underscore to underscore version)
+    column_mapping = {
+        'applicantincome': 'applicant_income',
+        'coapplicantincome': 'coapplicant_income',
+        'loanamount': 'loan_amount'
+    }
+    
+    # Create a copy to avoid modifying the original dataframe
+    df = df.copy()
+    
+    # Rename columns if they exist in the non-underscore format
+    for old_col, new_col in column_mapping.items():
+        if old_col in df.columns:
+            df[new_col] = df[old_col]
+    
+    # Now proceed with feature engineering using underscore format
     df['total_income'] = df['applicant_income'] + df['coapplicant_income']
     df['loan_repayment_rate'] = df['loan_amount'] / df['loan_amount_term']
     df['loan_amount_ratio'] = df['loan_amount'] / df['applicant_income']

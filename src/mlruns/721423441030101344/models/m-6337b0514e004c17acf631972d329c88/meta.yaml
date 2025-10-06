@@ -1,0 +1,10 @@
+artifact_location: file:///C:/Users/user/Documents/Github/Credit_Risk_Assessment_Model/src/mlruns/721423441030101344/models/m-6337b0514e004c17acf631972d329c88/artifacts
+creation_timestamp: 1759776110103
+experiment_id: '721423441030101344'
+last_updated_timestamp: 1759776115736
+model_id: m-6337b0514e004c17acf631972d329c88
+model_type: null
+name: catboost_model
+source_run_id: a964d51e41924716b622d947dfb229fd
+status: 2
+status_message: null

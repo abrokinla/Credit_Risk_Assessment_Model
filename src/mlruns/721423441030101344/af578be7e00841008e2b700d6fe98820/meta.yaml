@@ -1,0 +1,14 @@
+artifact_uri: file:///C:/Users/user/Documents/Github/Credit_Risk_Assessment_Model/src/mlruns/721423441030101344/af578be7e00841008e2b700d6fe98820/artifacts
+end_time: 1759776813759
+entry_point_name: ''
+experiment_id: '721423441030101344'
+lifecycle_stage: active
+run_id: af578be7e00841008e2b700d6fe98820
+run_name: catboost_optuna_experiment
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1759776646195
+status: 3
+tags: []
+user_id: user

@@ -3,10 +3,11 @@ train.py
 Handles model training and hyperparameter tuning.
 """
 
-from .data_prep import load_data, combine_and_preprocess
-from .models import get_model, EnsembleAverager
-from .pipeline import get_pipeline
+from data_prep import load_data, combine_and_preprocess
+from models import get_model, EnsembleAverager
+from pipeline import get_pipeline
 import pandas as pd
+import os
 
 def train_model(X=None, test_df=None, model_name=None, numeric_features=None, y=None, target_col="loan_status", **model_kwargs):
     """
@@ -26,30 +27,50 @@ def train_model(X=None, test_df=None, model_name=None, numeric_features=None, y=
         X = train_df_preprocessed[numeric_features]
         y = train_df_preprocessed[target_col]
 
+    import joblib
+    import os
+    model_dir = os.path.join(os.path.dirname(__file__), '..', 'models')
+    model_dir = os.path.abspath(model_dir)
+    os.makedirs(model_dir, exist_ok=True)
+
+    models_to_train = ["logistic_regression", "random_forest", "xgboost", "catboost_optuna"]
+    trained_pipelines = {}
+    for name in models_to_train:
+        if name == "catboost_optuna":
+            pipe = train_catboost_optuna(X, y, numeric_features, **model_kwargs)
+        else:
+            safe_kwargs = {k: v for k, v in model_kwargs.items() if k not in ["n_trials", "random_state"]}
+            model = get_model(name, **safe_kwargs)
+            pipe = get_pipeline(model, numeric_features)
+            pipe.fit(X, y)
+        # Save pipeline
+        joblib.dump(pipe, os.path.join(model_dir, f"credit_risk_{name}.joblib"))
+        trained_pipelines[name] = pipe
+
     # --- ENSEMBLE LOGIC WITH OPTIMIZED CATBOOST ---
     if isinstance(model_name, list):
         pipelines = []
         for name in model_name:
             if name == "catboost_optuna":
-                # Train and use the optimized CatBoost model
-                pipe = train_catboost_optuna(X, y, numeric_features, **model_kwargs)
+                pipe = trained_pipelines["catboost_optuna"]
             else:
-                safe_kwargs = {k: v for k, v in model_kwargs.items() if k not in ["n_trials", "random_state"]}
-                model = get_model(name, **model_kwargs)
-                pipe = get_pipeline(model, numeric_features)
-                pipe.fit(X, y)
+                pipe = trained_pipelines.get(name)
+                if pipe is None:
+                    model = get_model(name, **model_kwargs)
+                    pipe = get_pipeline(model, numeric_features)
+                    pipe.fit(X, y)
             pipelines.append(pipe)
         ensemble = EnsembleAverager([p.named_steps['model'] for p in pipelines])
-        # Fit the ensemble
         ensemble.fit(X, y)
-        # Wrap in a pipeline for compatibility
         from sklearn.pipeline import Pipeline
         return Pipeline([
             ("preprocessor", pipelines[0].named_steps['preprocessor']),
             ("model", ensemble)
         ])
     elif model_name == "catboost_optuna":
-        return train_catboost_optuna(X, y, numeric_features, **model_kwargs)
+        return trained_pipelines["catboost_optuna"]
+    elif model_name in trained_pipelines:
+        return trained_pipelines[model_name]
     else:
         model = get_model(model_name, **model_kwargs)
         pipeline = get_pipeline(model, numeric_features)
@@ -99,6 +120,11 @@ def train_catboost_optuna(X, y, numeric_features, n_trials=20, random_state=42):
 
         return auc
 
+       # Set MLflow tracking URI to local project folder (portable)
+    mlruns_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'mlruns'))
+    mlflow.set_tracking_uri(f"file:///{mlruns_path.replace(os.sep, '/')}")
+    os.environ["MLFLOW_ARTIFACT_URI"] = f"file:///{mlruns_path.replace(os.sep, '/')}"
+
     mlflow.set_experiment("catboost_optuna")
     with mlflow.start_run(run_name="catboost_optuna_experiment"):
         study = optuna.create_study(direction="maximize")
@@ -107,11 +133,9 @@ def train_catboost_optuna(X, y, numeric_features, n_trials=20, random_state=42):
         best_params = study.best_params
         best_value = study.best_value
 
-        # Log only best results
         mlflow.log_params(best_params)
         mlflow.log_metric("best_val_auc", best_value)
 
-        # Train best model on full data
         best_model = CatBoostClassifier(
             **best_params,
             auto_class_weights='SqrtBalanced',
@@ -122,8 +146,16 @@ def train_catboost_optuna(X, y, numeric_features, n_trials=20, random_state=42):
         )
         best_model.fit(X, y)
 
-        mlflow.catboost.log_model(best_model, "catboost_model")
-
+        input_example = X[:1] if hasattr(X, '__getitem__') else None
+        mlflow.catboost.log_model(
+            best_model,
+            artifact_path="catboost_model",
+            input_example=input_example
+        )
+    # Save the best model locally as well
+    model_dir = os.path.join(os.path.dirname(__file__), '..', 'models')
+    os.makedirs(model_dir, exist_ok=True)
+    joblib.dump(best_model, os.path.join(model_dir, "catboost_optuna_best_model.joblib"))
     # Return as a pipeline for compatibility
-    from .pipeline import get_pipeline
+    from pipeline import get_pipeline
     return get_pipeline(best_model, numeric_features)

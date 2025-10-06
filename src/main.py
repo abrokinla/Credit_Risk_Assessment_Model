@@ -2,10 +2,10 @@ def main():
     import os
     import numpy as np
     from sklearn.model_selection import train_test_split
-    from src.utils import set_seed, save_model, save_results
-    from src.evaluate import evaluate_classification_model
-    from src.data_prep import load_data, combine_and_preprocess
-    from src.train import train_model
+    from utils import set_seed, save_model, save_results
+    from evaluate import evaluate_classification_model
+    from data_prep import load_data, combine_and_preprocess
+    from train import train_model
 
     set_seed(42)
 
