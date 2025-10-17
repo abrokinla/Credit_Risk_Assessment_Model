@@ -1,4 +1,4 @@
-from data_prep import feature_eng
+from data_prep import feature_eng, preprocess_dependents
 
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
@@ -56,6 +56,14 @@ def predict_credit(request: CreditRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Model loading error: {e}")
 
+    # Define feature columns used in training
+    numeric_features = [
+        "applicant_income", "coapplicant_income", "loan_amount", "loan_amount_term", "total_income",
+        "loan_repayment_rate", "loan_amount_ratio", "loan_to_income_ratio", "loan_repayment_income_ratio",
+        "loan_repayment_applicant_income_ratio", "loan_income_thru_term", "loan_term_income_ratio",
+        "dependents_0", "dependents_1", "dependents_2", "dependents_3"
+    ]
+
     # Prepare input data for prediction
     input_data = {
         "gender": request.gender,
@@ -71,49 +79,45 @@ def predict_credit(request: CreditRequest):
         "property_area": request.property_area
     }
     input_df = pd.DataFrame([input_data])
+
+    # Rename columns to match training data format
+    column_mapping = {
+        'applicantincome': 'applicant_income',
+        'coapplicantincome': 'coapplicant_income',
+        'loanamount': 'loan_amount'
+    }
+    input_df = input_df.rename(columns=column_mapping)
+
+    # Scale amounts to match training data units (divide by 1000)
+    input_df['applicant_income'] /= 1000
+    input_df['coapplicant_income'] /= 1000
+    input_df['loan_amount'] /= 1000
+
+    input_df = preprocess_dependents(input_df)
     input_df = feature_eng(input_df)
+    X = input_df[numeric_features]
 
     # Get prediction and probability
-    prediction = model.predict(input_df)[0]
-    probability = model.predict_proba(input_df)[0]
+    prediction = model.predict(X)[0]
+    probability = model.predict_proba(X)[0]
 
     # Generate LIME explanation
     try:
-        # Use only original features for LIME explanation
-        original_features = [
-            "gender", "married", "dependents", "education", "self_employed",
-            "applicantincome", "coapplicantincome", "loanamount", "loan_amount_term",
-            "credit_history", "property_area"
-        ]
-        
-        # Prepare categorical features for LIME
-        categorical_features = ['gender', 'married', 'dependents', 'education', 'self_employed', 'property_area']
-        categorical_names = {}
-        
-        # Create a copy with only original features
-        lime_df = pd.DataFrame([input_data])  # Use original data, not engineered features
-        
-        # Convert categorical variables to numeric
-        for feature in categorical_features:
-            if feature in lime_df.columns:
-                # Create a mapping of categories to numbers
-                unique_values = pd.Categorical(lime_df[feature]).categories
-                categorical_names[lime_df.columns.get_loc(feature)] = unique_values
-                lime_df[feature] = pd.Categorical(lime_df[feature]).codes
-        
-        # Create explainer with categorical features
+        # Use processed features (16 features) for LIME explanation
+        # Create proxy training data for LIME (not actual training set)
+        proxy_training_data = np.random.rand(100, 16)  # Dummy data for statistics
+
+        # Create explainer for processed features
         explainer = lime.lime_tabular.LimeTabularExplainer(
-            training_data=lime_df.values,
-            feature_names=original_features,
+            training_data=proxy_training_data,
+            feature_names=numeric_features,  # 16 processed feature names
             class_names=["Not Approved", "Approved"],
-            categorical_features=[lime_df.columns.get_loc(col) for col in categorical_features if col in lime_df.columns],
-            categorical_names=categorical_names,
             mode="classification"
         )
-        
-        # Generate explanation
+
+        # Generate explanation using the processed instance
         exp = explainer.explain_instance(
-            lime_df.iloc[0].values,
+            X.iloc[0].values.astype(float),
             model.predict_proba,
             num_features=5
         )

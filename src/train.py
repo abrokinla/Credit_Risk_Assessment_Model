@@ -23,9 +23,14 @@ def train_model(X=None, test_df=None, model_name=None, numeric_features=None, y=
     else:
         train_df, test_df = load_data(train_path, test_path)
         combined_df = combine_and_preprocess(train_df, test_df)
+        combined_df['source'] = combined_df['source'].str.lower()
         train_df_preprocessed = combined_df[combined_df['source'] == 'train']
-        X = train_df_preprocessed[numeric_features]
-        y = train_df_preprocessed[target_col]
+
+        if train_df_preprocessed.empty:
+            raise ValueError("No training data found. Check 'source' labeling in combine_and_preprocess().")
+        else:
+            X = train_df_preprocessed[numeric_features]
+            y = train_df_preprocessed[target_col]
 
     import joblib
     import os
@@ -44,7 +49,7 @@ def train_model(X=None, test_df=None, model_name=None, numeric_features=None, y=
             pipe = get_pipeline(model, numeric_features)
             pipe.fit(X, y)
         # Save pipeline
-        joblib.dump(pipe, os.path.join(model_dir, f"credit_risk_{name}.joblib"))
+        joblib.dump(pipe.named_steps['model'], os.path.join(model_dir, f"credit_risk_{name}.joblib"))
         trained_pipelines[name] = pipe
 
     # --- ENSEMBLE LOGIC WITH OPTIMIZED CATBOOST ---
@@ -81,6 +86,7 @@ def train_model(X=None, test_df=None, model_name=None, numeric_features=None, y=
 # Optuna experiment tracking for CatBoost
 def train_catboost_optuna(X, y, numeric_features, n_trials=20, random_state=42):
     import optuna
+    import joblib
     from catboost import CatBoostClassifier
     from sklearn.model_selection import train_test_split
     from sklearn.metrics import roc_auc_score
@@ -122,8 +128,7 @@ def train_catboost_optuna(X, y, numeric_features, n_trials=20, random_state=42):
 
        # Set MLflow tracking URI to local project folder (portable)
     mlruns_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'mlruns'))
-    mlflow.set_tracking_uri(f"file:///{mlruns_path.replace(os.sep, '/')}")
-    os.environ["MLFLOW_ARTIFACT_URI"] = f"file:///{mlruns_path.replace(os.sep, '/')}"
+    mlflow.set_tracking_uri(mlruns_path)
 
     mlflow.set_experiment("catboost_optuna")
     with mlflow.start_run(run_name="catboost_optuna_experiment"):
@@ -146,11 +151,10 @@ def train_catboost_optuna(X, y, numeric_features, n_trials=20, random_state=42):
         )
         best_model.fit(X, y)
 
-        input_example = X[:1] if hasattr(X, '__getitem__') else None
         mlflow.catboost.log_model(
             best_model,
-            artifact_path="catboost_model",
-            input_example=input_example
+            name="catboost_model",
+            input_example=None
         )
     # Save the best model locally as well
     model_dir = os.path.join(os.path.dirname(__file__), '..', 'models')

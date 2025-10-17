@@ -1,0 +1,6 @@
+artifact_location: /home/araoye/Documents/Github/Credit_Risk_Assessment_Model/mlruns/697549173174356313
+creation_time: 1760706703447
+experiment_id: '697549173174356313'
+last_update_time: 1760706703447
+lifecycle_stage: active
+name: catboost_optuna

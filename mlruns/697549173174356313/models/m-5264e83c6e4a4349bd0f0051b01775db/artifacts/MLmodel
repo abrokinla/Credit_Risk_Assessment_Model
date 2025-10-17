@@ -1,0 +1,22 @@
+artifact_path: /home/araoye/Documents/Github/Credit_Risk_Assessment_Model/mlruns/697549173174356313/models/m-5264e83c6e4a4349bd0f0051b01775db/artifacts
+flavors:
+  catboost:
+    catboost_version: 1.2.8
+    code: null
+    data: model.cb
+    model_type: CatBoostClassifier
+    save_format: cbm
+  python_function:
+    data: model.cb
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.catboost
+    python_version: 3.12.3
+mlflow_version: 3.4.0
+model_id: m-5264e83c6e4a4349bd0f0051b01775db
+model_size_bytes: 12581128
+model_uuid: m-5264e83c6e4a4349bd0f0051b01775db
+prompts: null
+run_id: 4ba6f309f05748bf99579e27f7aeb11a
+utc_time_created: '2025-10-17 13:17:59.891363'

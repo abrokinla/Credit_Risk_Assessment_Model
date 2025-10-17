@@ -18,7 +18,8 @@ def main():
     numeric_features = [
         "applicant_income", "coapplicant_income", "loan_amount", "loan_amount_term", "total_income",
         "loan_repayment_rate", "loan_amount_ratio", "loan_to_income_ratio", "loan_repayment_income_ratio",
-        "loan_repayment_applicant_income_ratio", "loan_income_thru_term", "loan_term_income_ratio"
+        "loan_repayment_applicant_income_ratio", "loan_income_thru_term", "loan_term_income_ratio",
+        "dependents_0", "dependents_1", "dependents_2", "dependents_3"
     ]
     target_col = "loan_status"
 
@@ -45,7 +46,7 @@ def main():
         print(f"{k}:\n{v}\n")
 
     save_model(
-        pipeline_catboost_optuna,
+        pipeline_catboost_optuna.named_steps['model'],
         os.path.join("..", "Credit_Risk_Assessment_Model/models", "credit_risk_catboost_optuna.joblib")
     )
     save_results(
@@ -74,7 +75,7 @@ def main():
         print(f"{k}:\n{v}\n")
 
     save_model(
-        pipeline_ensemble,
+        pipeline_ensemble.named_steps['model'],
         os.path.join("..", "Credit_Risk_Assessment_Model/models", "credit_risk_ensemble.joblib")
     )
     save_results(

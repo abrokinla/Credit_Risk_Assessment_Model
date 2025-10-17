@@ -14,8 +14,8 @@ combined_df = combine_and_preprocess(train_df, test_df)
 def get_preprocessing_pipeline(numeric_features):
     """Returns a preprocessing pipeline for numeric features."""
     numeric_transformer = Pipeline([
-        ("imputer", SimpleImputer(strategy="mean")),
-        ("scaler", StandardScaler())
+        ("imputer", SimpleImputer(strategy="mean"))
+        # Removed scaler since tree-based models don't need it
     ])
     preprocessor = ColumnTransformer([
         ("num", numeric_transformer, numeric_features)

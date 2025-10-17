@@ -55,13 +55,18 @@ Credit_Risk_Assessment_Model/
 
 1. **Prepare your data**
    - Place `Train.csv` and `Test.csv` in the `credit-worthiness-prediction/` folder.
-2. **Run the pipeline**
+2. **Set up the database**
+   ```bash
+   python src/db.py
+   ```
+   - This creates the database table and populates it with the CSV data.
+3. **Run the pipeline**
    ```bash
    python -m src.main
    ```
    - This will train and evaluate both an ensemble and a CatBoost model with Optuna tuning.
    - Models and evaluation results are saved in the `models/` folder.
-3. **Run tests**
+4. **Run tests**
    ```bash
    pytest tests/
    ```
@@ -78,9 +83,31 @@ Credit_Risk_Assessment_Model/
 - To use different models or features, edit `src/main.py` and `src/train.py`.
 - To add new data sources (e.g., a database), update `src/data_prep.py`.
 
+## Deployment
+
+### Streamlit Cloud (Recommended for Personal Projects)
+1. **Push this repo to GitHub** (public repository).
+2. **Go to [share.streamlit.io](https://share.streamlit.io)**
+3. **Deploy from GitHub**:
+   - Connect your repository
+   - Select the `main` branch
+   - Set `app.py` as the main file
+   - The app will automatically detect `requirements.txt` and install dependencies
+4. **Get your public URL** - instantly accessible for showcasing your work!
+
+### Local Streamlit App
+```bash
+streamlit run app.py
+```
+
+### Alternative: Heroku/Free Hosting
+For more control or if you need Flask/FastAPI:
+```bash
+git push heroku main
+```
+
 ## Requirements
 See `requirements.txt` for all dependencies.
 
 ## License
 MIT License
-

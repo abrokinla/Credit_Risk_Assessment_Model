@@ -1,0 +1,14 @@
+artifact_uri: /home/araoye/Documents/Github/Credit_Risk_Assessment_Model/mlruns/697549173174356313/9a7328f5cc88433aba4d96cddf2695a5/artifacts
+end_time: 1760712353428
+entry_point_name: ''
+experiment_id: '697549173174356313'
+lifecycle_stage: active
+run_id: 9a7328f5cc88433aba4d96cddf2695a5
+run_name: catboost_optuna_experiment
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1760712301413
+status: 3
+tags: []
+user_id: araoye
